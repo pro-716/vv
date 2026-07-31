@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>تأسيس بيانات العراق 🇮🇶</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pocketbase/dist/pocketbase.umd.js"></script>
+</head>
+<body class="bg-slate-900 text-white flex items-center justify-center min-h-screen p-6">
+    <div class="glass bg-white/10 p-10 rounded-3xl text-center border border-white/20 max-w-md">
+        <h1 class="text-3xl font-bold mb-6">تأسيس قاعدة البيانات ⚙️</h1>
+        <p class="text-gray-400 mb-8">هذا الملف سيقوم بإضافة جميع محافظات العراق ومناطقها الرئيسية إلى سيرفرك تلقائياً.</p>
+        <button id="startBtn" class="bg-green-600 hover:bg-green-500 px-10 py-4 rounded-2xl font-bold text-xl transition-all">بدء التأسيس الآن 🚀</button>
+        <div id="status" class="mt-6 text-sm text-yellow-400"></div>
+    </div>
+
+    <script>
+        const pb = new PocketBase('https://abbas716.pockethost.io/');
+        
+        // قاعدة بيانات جغرافية مبسطة للعراق (محافظات ومناطق)
+        const iraqData = {
+            "بغداد": ["المنصور", "الكرادة", "الأعظمية", "زيونة", "الدورة", "مدينة الصدر", "الكاظمية", "الشعب"],
+            "البصرة": ["الجزائر", "الزبير",, "الفاو", "القرنة", "أبو الخصيب"],
+            "نينوى": ["الموصل", "تلكيف", "سنجار", "الحمدانية"],
+            "أربيل": ["مركز المدينة", "شقلاوة", "سوران"],
+            "السليمانية": ["مركز المدينة", "دوكان", "رانية"],
+            "دهوك": ["مركز المدينة", "زاخو", "سميل"],
+            "كركوك": ["مركز المدينة", "الحويجة", "الدبس"],
+            "الأنبار": ["الرمادي", "الفلوجة", "هيت", "القائم"],
+            "كربلاء": ["المركز", "الهندية"],
+            "النجف": ["المركز", "الكوفة"],
+            "بابل": ["الحلة", "المسيب", "القاسم"],
+            "ذي قار": ["الناصرية", "سوق الشيوخ", "الرفاعي"],
+            "ميسان": ["العمارة", "المجر", "الكحلاء"],
+            "المثنى": ["السماوة", "الرميثة"],
+            "القادسية": ["الديوانية", "الشامية", "عفك"],
+            "واسط": ["الكوت", "النعمانية"],
+            "صلاح الدين": ["تكريت", "بيجي", "سامراء"],
+            "ديالى": ["بعقوبة", "المقدادية", "خانقين"]
+        };
+
+        document.getElementById('startBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('startBtn');
+            const status = document.getElementById('status');
+            btn.disabled = true;
+            btn.innerText = "جاري الإرسال...";
+
+            try {
+                for (const [province, areas] of Object.entries(iraqData)) {
+                    for (const area of areas) {
+                        // نرسل "مكان تجريبي" لكل منطقة لكي تظهر في الفلاتر
+                        await pb.collection('places').create({
+                            name: `مكان تجريبي في ${area}`,
+                            province: province,
+                            area: area,
+                            category: 'مطاعم',
+                            price: 'غير محدد',
+                            description: 'تم إضافة هذه المنطقة تلقائياً أثناء تأسيس الموقع.',
+                            lat: '0', lng: '0'
+                        });
+                    }
+                    status.innerText = `تم إضافة محافظة ${province} بنجاح...`;
+                }
+                status.innerText = "✅ اكتمل التأسيس! يمكنك الآن حذف هذا الملف.";
+                btn.innerText = "تم بنجاح 🎉";
+                btn.className = "bg-green-500 px-10 py-4 rounded-2xl font-bold text-xl";
+            } catch (e) {
+                status.innerText = "❌ خطأ: " + e.message;
+                btn.disabled = false;
+                btn.innerText = "إعادة المحاولة";
+            }
+        });
+    </script>
+</body>
+</html>
